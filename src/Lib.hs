@@ -1,6 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Lib where
 
+import System.Random
+import Control.Monad (replicateM)
+
+import Data.List (sortOn)
+
+import Data.Ord (comparing)
+import Data.Map (Map, (!))
+import qualified Data.Map as Map
+
 -- | Problem 1: Find the last element of a list.
 myLast :: [a] -> a
 myLast [] = error "empty list"
@@ -139,3 +148,58 @@ rotate xs n = drop n' xs ++ take n' xs
 -- | Problem 20: Remove the K'th element from a list.
 removeAt :: Int -> [a] -> (a, [a])
 removeAt k xs = (xs !! (k - 1), take (k - 1) xs ++ drop k xs)
+
+-- | Problem 21: Insert an element at a given position into a list.
+insertAt :: a -> [a] -> Int -> [a]
+insertAt x xs index = take (index - 1) xs ++ [x] ++ drop (index - 1) xs
+
+-- | Problem 22: Create a list containing all integers within a given range.
+range :: Enum a => a -> a -> [a]
+range lo hi = [lo..hi]
+
+-- | Problem 23: Extract a given number of randomly selected elements from a list.
+rnd_select :: [a] -> Int -> IO [a]
+rnd_select xs n
+  | n < 0 = error "n has to be > 0"
+  | otherwise = do
+      generator <- getStdGen
+      return $ take n [xs !! index | index <- randomRs (0, length xs - 1)  generator]
+
+-- | Problem 24: Lotto: Draw N different random numbers from the set 1..M.
+diff_select :: Int -> Int -> IO [Int]
+diff_select n m = rnd_select [1..m] n
+
+-- | Problem 25: Generate a random permutation of the elements of a list.
+rnd_permu :: [a] -> IO [a]
+rnd_permu xs = rnd_select xs (length xs)
+
+-- | Problem 26: Generate the combinations of K distinct objects chosen from the N elements of a list
+-- In how many ways can a committee of 3 be chosen from a group of 12 people? We all know that there are C(12,3) = 220 possibilities (C(N,K) denotes the well-known binomial coefficients). For pure mathematicians, this result may be great. But we want to really generate all the possibilities in a list.
+combinations :: Int -> [a] -> [[a]]
+combinations k xs = backtrack xs [] (length xs) k 0
+  where
+    backtrack :: [a] -> [a] -> Int -> Int -> Int -> [[a]]
+    backtrack xs current n k start
+      | length current == k = [current]
+      | otherwise = concat $ [backtrack xs (current ++ [xs !! i]) n k (i + 1) | i <- [start..(n - 1)]]
+
+-- | Problem 27: Group the elements of a set into disjoint subsets.
+group :: [Int] -> [a] -> [[[a]]]
+group [] _ = [[]]
+group (n:ns) xs = [g:gs | (g, rs) <- combination n xs, gs <- group ns rs]
+  where
+    combination 0 xs = [([], xs)]
+    combination n [] = []
+    combination n (x:xs) = [(x:ys, zs) | (ys, zs) <- combination (n - 1) xs] ++ [(ys, x:zs) | (ys, zs) <- combination n xs]
+
+-- | Problem 28 (a): Sorting a list of lists according to length of sublists
+lsort :: [[a]] -> [[a]]
+lsort = sortOn length
+
+-- | Problem 28 (b): Sorting a list of lists according to length of frequency sublists
+lfsort :: [[a]] -> [[a]]
+lfsort xs = sortOn (\x -> frequencies ! (length x)) xs
+  where
+    frequencies :: Map Int Int
+    frequencies = foldr (\x -> Map.insertWith (+) (length x) 1) Map.empty xs
+

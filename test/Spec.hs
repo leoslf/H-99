@@ -2,6 +2,8 @@ import Test.Hspec
 import Test.QuickCheck
 import Control.Exception (evaluate)
 
+import qualified Combinatorics
+
 import Lib
 
 main :: IO ()
@@ -121,3 +123,56 @@ main = hspec $ do
   describe "removeAt" $ do
     it "removes the k-th element from a list" $ do
       removeAt 2 "abcd" `shouldBe` ('b',"acd")
+
+  -- Problem 21
+  describe "insertAt" $ do
+    it "inserts an element at a given position into a list" $ do
+      insertAt 'X' "abcd" 2 `shouldBe` "aXbcd"
+
+  -- Problem 22
+  describe "range" $ do
+    it "creates a list containing integers within a given ragne" $ do
+      range 4 9 `shouldBe` [4,5,6,7,8,9]
+
+  -- Problem 23
+  describe "rnd_select" $ do
+    it "Extract a given number of randomly selected elements from a list" $ do
+      let xs = "1234567"
+      rnd_select xs 3 >>= (`shouldSatisfy` (\results -> length results == 3 && all (`elem` xs) results))
+      
+
+  -- Problem 24
+  describe "diff_select" $ do
+    it "draws n different random numbers from the set {1..m}" $ do
+      diff_select 6 49 >>= (`shouldSatisfy` (\results -> length results == 6 && all (`elem` [1..49]) results))
+
+  -- Problem 25
+  describe "rnd_permu" $ do
+    it "generates a random permutation of the elements of a list" $ do
+      let source = "abcdef"
+      rnd_permu source >>= (`shouldSatisfy` (\results -> length results == length source && all (`elem` source) results))
+
+  -- Problem 26
+  describe "combinations" $ do
+    it "generates the combinations of k distinct objects from the n-element list" $ do
+      let source = "abcdef"
+      let results = combinations 3 source
+      length results `shouldBe` Combinatorics.binomial (length "abcdef") 3
+      results `shouldBe` Combinatorics.tuples 3 source
+
+  -- Problem 27
+  describe "group" $ do
+    it "groups the elements of a set into disjoint subsets." $ do
+      group [2,3,4] ["aldo","beat","carla","david","evi","flip","gary","hugo","ida"] `shouldSatisfy` (\results -> length results == 1260)
+      group [2,2,5] ["aldo","beat","carla","david","evi","flip","gary","hugo","ida"] `shouldSatisfy` (\results -> length results == 756)
+
+  -- Problem 28
+  describe "Sorting a list of lists according to length of sublists" $ do
+    describe "lsort" $ do
+      it "sorts sublists according to their length" $ do
+        lsort ["abc","de","fgh","de","ijkl","mn","o"] `shouldBe` ["o","de","de","mn","abc","fgh","ijkl"]
+    
+    describe "lfsort" $ do
+      it "sorts sublists according to their length frequency" $ do
+        lfsort ["abc", "de", "fgh", "de", "ijkl", "mn", "o"] `shouldBe` ["ijkl","o","abc","fgh","de","de","mn"]
+
