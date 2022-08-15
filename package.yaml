@@ -50,6 +50,9 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - h99
+    when:
+    - condition: false
+      other-modules: Paths_h99
 
 tests:
   h99-test:

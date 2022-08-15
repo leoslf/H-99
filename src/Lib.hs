@@ -9,8 +9,6 @@ import qualified Data.List as List
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
 
-import Debug.Trace
-
 -- | Problem 1: Find the last element of a list.
 myLast :: [a] -> a
 myLast [] = error "empty list"
@@ -77,12 +75,12 @@ encode xs = map (\group -> (length group, head group)) $ pack xs
 
 -- | Problem 11: Modified run-length encoding.
 -- Modify the result of problem 10 in such a way that if an element has no duplicates it is simply copied into the result list. Only elements with duplicates are transferred as (N E) lists.
-data Eq a => ModifiedEncoding a
+data ModifiedEncoding a
   = Single a
   | Multiple Int a
   deriving (Show, Eq)
 
-modifiedEncoding :: Eq a => (Int, a) -> ModifiedEncoding a
+modifiedEncoding :: (Int, a) -> ModifiedEncoding a
 modifiedEncoding (1, x) = Single x
 modifiedEncoding (n, x) = Multiple n x
 
@@ -91,7 +89,7 @@ encodeModified xs = map modifiedEncoding $ encode xs
 
 -- | Problem 12: Decode a run-length encoded list.
 -- Given a run-length code list generated as specified in problem 11. Construct its uncompressed version.
-decodeModified :: Eq a => [ModifiedEncoding a] -> [a]
+decodeModified :: [ModifiedEncoding a] -> [a]
 decodeModified encoded = concat $ map decode encoded
   where
     decode (Single x) = [x]

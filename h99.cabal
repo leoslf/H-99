@@ -38,8 +38,6 @@ library
 
 executable h99-exe
   main-is: Main.hs
-  other-modules:
-      Paths_h99
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-name-shadowing -Wno-type-defaults -Wno-missing-export-lists -threaded -rtsopts -with-rtsopts=-N
