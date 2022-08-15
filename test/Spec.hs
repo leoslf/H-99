@@ -1,6 +1,15 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 import Test.Hspec
 import Test.QuickCheck
+
+import System.IO
+
 import Control.Exception (evaluate)
+import Control.Monad (replicateM)
+
+import Data.Function ((&))
+import Data.List (genericLength, genericReplicate, genericTake, intercalate)
+import Data.List.Split (splitOn)
 
 import qualified Combinatorics
 
@@ -233,5 +242,74 @@ main = hspec $ do
       it "finds the pairs of primes that sum up to a even number n in range lo and hi" $ do
         goldbachList' 4 2000 50 `shouldBe` [(73,919),(61,1321),(67,1789),(61,1867)]
 
+  describe "Logic" $ do
+    -- Problem 46
+    describe "and'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `and'` b) == (a && b)
+
+    describe "or'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `or'` b) == (a || b)
+
+    describe "nand'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `nand'` b) == (not $ a && b)
+
+    describe "nor'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `nor'` b) == (not $ a || b)
+
+    describe "xor'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `xor'` b) == (a /= b)
+
+    describe "impl'" $ do
+      it "has correct truth table" $ do
+        True `impl'` True `shouldBe` True
+        True `impl'` False `shouldBe` False
+        False `impl'` True `shouldBe` True
+        False `impl'` False `shouldBe` True
   
-  
+    describe "equ'" $ do
+      it "has correct truth table" $ do
+        property $ \(a :: Bool) (b :: Bool) -> (a `equ'` b) == (a == b)
+
+    let parse :: String -> [[Bool]]
+        parse = map (map read . splitOn "\t") . lines
+        permutations :: Integral d => d -> [a] -> [[a]]
+        permutations n options = filter (\permutation -> genericLength permutation == n) $ replicateM (fromIntegral n) options
+ 
+    describe "table" $ do
+      let test title predicate = do
+            describe title $ do
+              it "formats the truth table of the predicate correctly" $ do
+                hPutStrLn stderr $ unlines [title, "A\tB\t" ++ title, table predicate]
+                (table predicate & parse) `shouldBe` [[a, b, predicate a b] | a <- [False, True], b <- [False, True]]
+      test "and'" and'
+      test "or'" or'
+      test "nand'" nand'
+      test "nor'" nor'
+      test "xor'" xor'
+      test "impl'" impl'
+      test "equ'" equ'
+
+    -- Problem 48
+    describe "tablen" $ do
+      let alphabets = map (\c -> [c]) ['A'..] :: [String]
+          test title predicate n = do
+            describe title $ do
+              it "formats the truth table of the predicate correctly" $ do
+                hPutStrLn stderr $ unlines [title, (intercalate "\t" $ genericTake n alphabets) ++ "\t" ++ title, tablen n predicate]
+                (tablen n predicate & parse) `shouldBe` (map (\input -> input ++ [predicate input]) $ replicateM n [False, True])
+
+      let predicate [a, b, c] = a `and'` (b `or'` c) `equ'` a `and'` b `or'` a `and'` c
+      test "A `and'` (B `or'` C) `equ'` A `and'` B `or'` A `and'` C" predicate 3
+
+
+  -- Problem 49
+  describe "gray" $ do
+    it "produces an n-bit Gray code" $ do
+      gray 1 `shouldBe` ["0", "1"]
+      gray 2 `shouldBe` ["00", "01", "11", "10"]
+      gray 3 `shouldBe` ["000", "001", "011", "010", "110", "111", "101", "100"]

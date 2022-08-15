@@ -4,10 +4,17 @@ module Lib where
 
 import System.Random
 
-import qualified Data.List as List
+import Control.Arrow (second)
+import Control.Monad (replicateM)
 
+import qualified Data.List as List
+import Data.Ord (comparing)
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
+
+import Debug.Trace
+
+sniff input = trace (show input) input
 
 -- | Problem 1: Find the last element of a list.
 myLast :: [a] -> a
@@ -286,3 +293,78 @@ goldbachList lo hi = map goldbach $ takeWhile (<= hi) $ dropWhile (<= lo) evens
 
 goldbachList' :: Integral d => d -> d -> d -> [(d, d)]
 goldbachList' lo hi limit = [(a, b) | (a, b) <- goldbachList lo hi, a > limit && b > limit]
+
+-- | Problem 46: Define predicates and/2, or/2, nand/2, nor/2, xor/2, impl/2 and equ/2 (for logical equivalence) which succeed or fail according to the result of their respective operations; e.g. and(A,B) will succeed, if and only if both A and B succeed.
+-- A logical expression in two variables can then be written as in the following example: and(or(A,B),nand(A,B)).
+-- Now, write a predicate table/3 which prints the truth table of a given logical expression in two variables.
+type Predicate = Bool -> Bool -> Bool
+
+infixr 3 `and'`
+and' :: Predicate
+True `and'` True = True
+_ `and'` _ = False
+
+infixr 2 `or'`
+or' :: Predicate
+False `or'` False = False
+_ `or'` _ = True
+
+not' :: Bool -> Bool
+not' True = False
+not' False = True
+
+infixr 3 `nand'`
+nand' :: Predicate
+a `nand'` b = not' $ a `and'` b
+
+infixr 2 `nor'`
+nor' :: Predicate
+a `nor'` b = not' $ a `or'` b
+
+infixr 1 `xor'`
+xor' :: Predicate
+True `xor'` False = True
+False `xor'` True = True
+_ `xor'` _ = False
+
+-- | a implies b
+impl' :: Predicate
+a `impl'` b = (not' a) `or'` b
+
+infixr 0 `equ'`
+equ' :: Predicate
+True `equ'` True = True
+False `equ'` False = True
+_ `equ'` _ = False
+
+-- | Truth Table
+table :: (Predicate) -> String
+table predicate = unlines [List.intercalate "\t" $ map show $ [a, b, predicate a b] | a <- [False, True], b <- [False, True]]
+
+-- | Problem 47: Truth tables for logical expressions (2).
+-- Continue problem P46 by defining and/2, or/2, etc as being operators. This allows to write the logical expression in the more natural way, as in the example: A and (A or not B). Define operator precedence as usual; i.e. as in Java.
+-- (Done with Problem 46)
+
+-- | Problem 48: Truth tables for logical expressions (3).
+-- Generalize problem P47 in such a way that the logical expression may contain any number of logical variables. Define table/2 in a way that table(List,Expr) prints the truth table for the expression Expr, which contains the logical variables enumerated in List.
+tablen :: Integral d => d -> ([Bool] -> Bool) -> String
+tablen n predicate = unlines $ [List.intercalate "\t" $ map show $ input ++ [predicate input] | input <- replicateM (fromIntegral n) [False, True]]
+
+-- | Problem 49: Gray Code
+gray :: Integral d => d -> [String]
+gray n | n < 1 = undefined
+gray 1 = ["0", "1"]
+gray n = ['0':code | code <- previous] ++ ['1':code | code <- reverse previous]
+  where
+    previous = gray (n - 1)
+
+-- | Problem 50: Huffman codes.
+-- We suppose a set of symbols with their frequencies, given as a list of fr(S,F) terms. Example: [fr(a,45),fr(b,13),fr(c,12),fr(d,16),fr(e,9),fr(f,5)]. Our objective is to construct a list hc(S,C) terms, where C is the Huffman code word for the symbol S. In our example, the result could be Hs = [hc(a,'0'), hc(b,'101'), hc(c,'100'), hc(d,'111'), hc(e,'1101'), hc(f,'1100')] [hc(a,'01'),...etc.].
+huffman :: Integral d => [(Char, d)] -> [(Char, String)]
+huffman = shrink . map (\(c, p) -> (p, [(c ,"")])) . List.sortOn snd
+  where
+    shrink [(_, xs)] = List.sortOn fst xs
+    shrink (x:x':xs) = shrink $ insertOn fst (add x x') xs
+    add (p, xs) (p', xs') = (p + p', prefixing '0' xs ++ prefixing '1' xs')
+    prefixing c = map (second (c:))
+    insertOn f = List.insertBy (comparing f)

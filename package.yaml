@@ -67,3 +67,4 @@ tests:
     - hspec >= 2
     - QuickCheck >= 2.14
     - combinatorial >= 0.1
+    - split >= 0.2.3.5
