@@ -33,6 +33,9 @@ ghc-options:
 - -Wmissing-home-modules
 - -Wpartial-fields
 - -Wredundant-constraints
+- -Wno-name-shadowing
+- -Wno-type-defaults
+- -Wno-missing-export-lists
 
 library:
   source-dirs: src

@@ -176,3 +176,62 @@ main = hspec $ do
       it "sorts sublists according to their length frequency" $ do
         lfsort ["abc", "de", "fgh", "de", "ijkl", "mn", "o"] `shouldBe` ["ijkl","o","abc","fgh","de","de","mn"]
 
+  -- Problem 31
+  describe "isPrime" $ do
+    it "determines whether a given integer is prime" $ do
+      isPrime 7 `shouldBe` True
+
+  -- Problem 32
+  describe "myGCD" $ do
+    it "determines the greatest common divisor of two positive integer numbers" $ do
+      myGCD 36 63 `shouldBe` 9
+      myGCD (-3) (-6) `shouldBe` 3
+      myGCD (-3) 6 `shouldBe` 3
+
+  -- Problem 33
+  describe "coprime" $ do
+    it "determines whether two positive integer numbers are coprime" $ do
+      coprime 35 64 `shouldBe` True
+
+  -- Problem 34
+  describe "totient" $ do
+    it "calculates Euler's totient function phi(m)." $ do
+      totient 10 `shouldBe` 4
+  
+  -- Problem 35
+  describe "primeFactors" $ do
+    it "determines the prime factors of a given positive integer" $ do
+      primeFactors 315 `shouldBe` [3, 3, 5, 7]
+
+  -- Problem 36
+  describe "prime_factors_mult" $ do
+    it "determines the prime factors of a given positive integer" $ do
+      prime_factors_mult 315 `shouldBe` [(3,2),(5,1),(7,1)]
+
+  -- Problem 37
+  describe "totient'" $ do
+    it "calculates Euler's totient function phi(m) (improved)." $ do
+      totient' 10 `shouldBe` 4
+
+  -- Problem 39
+  describe "primesR" $ do
+    it "lists out the prime numbers between lo and hi" $ do
+      primesR 10 20 `shouldBe` [11,13,17,19]
+
+  -- Problem 40
+  describe "goldbach" $ do
+    it "finds the pair of primes that sums up to a even number n" $ do
+      goldbach 28 `shouldBe` (5, 23)
+
+  -- Problem 41
+  describe "Goldbach's list" $ do
+    describe "goldbachList" $ do
+      it "finds the pairs of primes that sum up to a even number n in range lo and hi" $ do
+        goldbachList 9 20 `shouldBe` [(3,7),(5,7),(3,11),(3,13),(5,13),(3,17)]
+
+    describe "goldbachList'" $ do
+      it "finds the pairs of primes that sum up to a even number n in range lo and hi" $ do
+        goldbachList' 4 2000 50 `shouldBe` [(73,919),(61,1321),(67,1789),(61,1867)]
+
+  
+  
