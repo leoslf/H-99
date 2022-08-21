@@ -313,3 +313,205 @@ main = hspec $ do
       gray 1 `shouldBe` ["0", "1"]
       gray 2 `shouldBe` ["00", "01", "11", "10"]
       gray 3 `shouldBe` ["000", "001", "011", "010", "110", "111", "101", "100"]
+
+  -- Problem 55
+  describe "cbalTree" $ do
+    it "constructs completely balanced binary trees for a given number of nodes" $ do
+      cbalTree 4 `shouldBe`
+        [ -- permutation 1
+          --     x
+          --    / \
+          --   x   x
+          --        \
+          --         x
+          Branch 'x' (Branch 'x' Empty Empty)
+                     (Branch 'x' Empty
+                                 (Branch 'x' Empty Empty)),
+
+          -- permutation 2
+          --     x
+          --    / \
+          --   x   x
+          --      /
+          --     x
+          Branch 'x' (Branch 'x' Empty Empty)
+                     (Branch 'x' (Branch 'x' Empty Empty)
+                                 Empty),
+
+          -- permutation 3
+          --     x
+          --    / \
+          --   x   x
+          --    \
+          --     x
+          Branch 'x' (Branch 'x' Empty
+                                 (Branch 'x' Empty Empty))
+                     (Branch 'x' Empty Empty),
+
+          -- permutation 4
+          --     x
+          --    / \
+          --   x   x
+          --  /
+          -- x
+          Branch 'x' (Branch 'x' (Branch 'x' Empty Empty)
+                                 Empty)
+                     (Branch 'x' Empty Empty)
+          ]
+
+  -- Problem 56
+  describe "symmetric" $ do
+    it "checks if a binary tree is structurally symmetric" $ do
+      symmetric (Branch 'x' (Branch 'x' Empty Empty) Empty) `shouldBe` False
+      symmetric (Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)) `shouldBe` True
+
+  -- Problem 57
+  describe "construct" $ do
+    it "constructs a binary search tree from a list of integer numbers" $ do
+      construct [3, 2, 5, 7, 1] `shouldBe` Branch 3 (Branch 2 (Branch 1 Empty Empty) Empty) (Branch 5 Empty (Branch 7 Empty Empty))
+      construct [5, 3, 18, 1, 4, 12, 21] `shouldSatisfy` symmetric
+      construct [3, 2, 5, 7, 1] `shouldSatisfy` symmetric
+
+  -- Problem 58
+  describe "symCbalTrees" $ do
+    it "constructs all symmetric, completely balanced binary trees with a given number of nodes with the generate-and-test paradigm" $ do
+      symCbalTrees 5 `shouldBe` [Branch 'x' (Branch 'x' Empty (Branch 'x' Empty Empty)) (Branch 'x' (Branch 'x' Empty Empty) Empty),Branch 'x' (Branch 'x' (Branch 'x' Empty Empty) Empty) (Branch 'x' Empty (Branch 'x' Empty Empty))]
+
+  -- Problem 59
+  describe "hbalTree" $ do
+    it "constructs a height-balanced binary tree, the height of its left subtree and right subtree are almost equal (i.e. difference <= 1)" $ do
+      (take 4 $ hbalTree 'x' 3) `shouldBe` [Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty (Branch 'x' Empty Empty)),
+                                            Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)),
+                                            Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' (Branch 'x' Empty Empty) Empty),
+                                            Branch 'x' (Branch 'x' Empty (Branch 'x' Empty Empty)) (Branch 'x' Empty (Branch 'x' Empty Empty))]
+
+  -- Problem 60
+  describe "hbalTreeNodes" $ do
+    it "constructs height-balanced binary trees with a given number of nodes" $ do
+      map (hbalTreeNodes 'x') [0..3] `shouldBe` [[Empty],
+                                                 [Branch 'x' Empty Empty],
+                                                 [Branch 'x' Empty (Branch 'x' Empty Empty),Branch 'x' (Branch 'x' Empty Empty) Empty],
+                                                 [Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)]]
+
+  let tree4 = (Branch 1 (Branch 2 Empty (Branch 4 Empty Empty)) (Branch 2 Empty Empty))
+  -- Problem 61
+  describe "countLeaves" $ do
+    it "counts the leaves of a binary tree" $ do
+      countLeaves tree4 `shouldBe` 2
+
+  -- Problem 61a
+  describe "leaves" $ do
+    it "collects the leaves of a binary tree into a list" $ do
+      leaves tree4 `shouldBe` [4, 2]
+
+  -- Problem 62
+  describe "internals" $ do
+    it "collects the internals of a binary tree into a list" $ do
+      internals tree4 `shouldBe` [1, 2]
+
+  -- Problem 62b
+  describe "atlevel" $ do
+    it "collects the internals of a binary tree into a list" $ do
+      atLevel tree4 2 `shouldBe` [2, 2]
+
+  -- Problem 63
+  describe "completeBinaryTree" $ do
+    it "constructs a complete binary tree with n nodes" $ do
+      completeBinaryTree 4 `shouldBe` Branch 'x' (Branch 'x' (Branch 'x' Empty Empty) Empty) (Branch 'x' Empty Empty)
+      isCompleteBinaryTree (Branch 'x' (Branch 'x' (Branch 'x' Empty Empty) Empty) (Branch 'x' Empty Empty)) `shouldBe` True
+
+  let tree64 = Branch 'n'
+                (Branch 'k'
+                        (Branch 'c'
+                                (Branch 'a' Empty Empty)
+                                (Branch 'h'
+                                        (Branch 'g'
+                                                (Branch 'e' Empty Empty)
+                                                Empty
+                                        )
+                                        Empty
+                                )
+                        )
+                        (Branch 'm' Empty Empty)
+                )
+                (Branch 'u'
+                        (Branch 'p'
+                                Empty
+                                (Branch 's'
+                                        (Branch 'q' Empty Empty)
+                                        Empty
+                                )
+                        )
+                        Empty
+                )
+
+  -- Problem 64
+  describe "layout" $ do
+    it "annotates each node in the tree of its position" $ do
+      layout tree64 `shouldBe`
+        Branch ('n', (8, 1))
+                (Branch ('k', (6, 2))
+                        (Branch ('c', (2, 3))
+                                (Branch ('a', (1, 4)) Empty Empty)
+                                (Branch ('h', (5, 4))
+                                        (Branch ('g', (4, 5))
+                                                (Branch ('e', (3, 6)) Empty Empty)
+                                                Empty
+                                        )
+                                        Empty
+                                )
+                        )
+                        (Branch ('m', (7, 3)) Empty Empty)
+                )
+                (Branch ('u', (12, 2))
+                        (Branch ('p', (9, 3))
+                                Empty
+                                (Branch ('s', (11, 4))
+                                        (Branch ('q', (10, 5)) Empty Empty)
+                                        Empty
+                                )
+                        )
+                        Empty
+                )
+
+  let tree65 = Branch 'n'
+                (Branch 'k'
+                        (Branch 'c'
+                                (Branch 'a' Empty Empty)
+                                (Branch 'e'
+                                        (Branch 'd' Empty Empty)
+                                        (Branch 'g' Empty Empty)
+                                )
+                        )
+                        (Branch 'm' Empty Empty)
+                )
+                (Branch 'u'
+                        (Branch 'p'
+                                Empty
+                                (Branch 'q' Empty Empty)
+                        )
+                        Empty
+                )
+  -- Problem 65
+  describe "layout'" $ do
+    it "annotates each node in the tree of its position" $ do
+      layout' tree65 `shouldBe`
+        Branch ('n', (15, 1))
+                (Branch ('k', (7, 2))
+                        (Branch ('c', (3, 3))
+                                (Branch ('a', (1, 4)) Empty Empty)
+                                (Branch ('e', (5, 4))
+                                        (Branch ('d', (4, 5)) Empty Empty)
+                                        (Branch ('g', (6, 5)) Empty Empty)
+                                )
+                        )
+                        (Branch ('m', (11, 3)) Empty Empty)
+                )
+                (Branch ('u', (23, 2))
+                        (Branch ('p', (19, 3))
+                                Empty
+                                (Branch ('q', (21, 4)) Empty Empty)
+                        )
+                        Empty
+                )
+
